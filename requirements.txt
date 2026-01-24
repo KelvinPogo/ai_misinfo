@@ -1,1 +1,6 @@
 kaggle
+torch
+torchvision
+Pillow
+tqdm
+scikit-learn
