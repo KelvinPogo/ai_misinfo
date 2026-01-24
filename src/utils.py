@@ -80,7 +80,7 @@ def get_loaders(batch_size=32, data_dir='data'):
         train_dataset,
         batch_size=batch_size,
         shuffle=True,
-        num_workers=4,  # Adjust based on your CPU cores
+        num_workers=0,  # Set to 0 to avoid multiprocessing issues
         pin_memory=True if torch.cuda.is_available() else False
     )
 
@@ -88,7 +88,7 @@ def get_loaders(batch_size=32, data_dir='data'):
         val_dataset,
         batch_size=batch_size,
         shuffle=False,
-        num_workers=4,
+        num_workers=0,  # Set to 0 to avoid multiprocessing issues
         pin_memory=True if torch.cuda.is_available() else False
     )
 
