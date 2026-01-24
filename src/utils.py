@@ -30,13 +30,13 @@ class DeepfakeDataset(Dataset):
         self.labels = []
 
         # Collect all image paths and labels
-        for label, class_name in enumerate(self.classes):
-            class_dir = os.path.join(root_dir, class_name)
-            if os.path.exists(class_dir):
-                for img_name in os.listdir(class_dir):
-                    if img_name.lower().endswith(('.png', '.jpg', '.jpeg')):
-                        self.image_paths.append(os.path.join(class_dir, img_name))
-                        self.labels.append(label)
+        for label, class_name in enumerate(self.classes): # (0, 'real'), (1, 'fake')
+            class_dir = os.path.join(root_dir, class_name) # e.g., data/train/real and data/train/fake
+            if os.path.exists(class_dir): # Check if directory exists
+                for img_name in os.listdir(class_dir): # Iterate over images
+                    if img_name.lower().endswith(('.png', '.jpg', '.jpeg')): # Check for valid image extensions
+                        self.image_paths.append(os.path.join(class_dir, img_name)) # Full image path
+                        self.labels.append(label) # Corresponding label (0 or 1)
 
     def __len__(self):
         return len(self.image_paths)
@@ -71,6 +71,9 @@ def get_loaders(batch_size=32, data_dir='data'):
     # Create datasets
     train_dataset = DeepfakeDataset(train_dir, transform=transform)
     val_dataset = DeepfakeDataset(val_dir, transform=transform)
+
+    # train_dataset = DeepfakeDataset(root_dir="data/train", transform=transform)
+    # val_dataset = DeepfakeDataset(root_dir="data/test", transform=transform)
 
     # Create data loaders
     train_loader = DataLoader(
