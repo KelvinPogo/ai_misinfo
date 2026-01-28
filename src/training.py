@@ -10,7 +10,7 @@ import random
 import numpy as np
 import os
 
-def load_checkpoint(model, optimizer, checkpoint_dir='checkpoints'):
+def load_latest_checkpoint(model, optimizer, checkpoint_dir='checkpoints'):
     """Load the most recent checkpoint if it exists"""
     if not os.path.exists(checkpoint_dir):
         print("No checkpoint directory found. Starting fresh training.")
@@ -61,7 +61,7 @@ if __name__ == '__main__':
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     # Load checkpoint if exists
-    start_epoch = load_checkpoint(model, optimizer)
+    start_epoch = load_latest_checkpoint(model, optimizer)
 
     # Training Loop
     for epoch in range(start_epoch, num_epochs):
@@ -108,6 +108,7 @@ if __name__ == '__main__':
         val_acc = accuracy_score(val_labels, val_preds)
         val_f1 = f1_score(val_labels, val_preds, average='weighted')
         print(f"Epoch {epoch+1} Val Loss: {np.mean(val_losses):.4f} | Acc: {val_acc:.4f} | F1: {val_f1:.4f}")
+        
 
         # Save model checkpoint
         checkpoint_path = f'checkpoints/model_epoch_{epoch+1}.pth'
