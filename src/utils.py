@@ -54,42 +54,28 @@ class DeepfakeDataset(Dataset):
         return image, label
 
 def get_loaders(batch_size=32, data_dir='data'):
-    """
-    Create train and validation data loaders
-    Assumes data is organized as:
-    data_dir/
-        train/
-            real/
-            fake/
-        val/
-            real/
-            fake/
-    """
-    train_dir = os.path.join(data_dir, 'train')
+    train_dir = os.path.join(data_dir, 'train')  # ← use existing data
     val_dir = os.path.join(data_dir, 'val')
 
-    # Create datasets
     train_dataset = DeepfakeDataset(train_dir, transform=transform)
+    print("Train dataset size:", len(train_dataset)) #quick diagnostic
     val_dataset = DeepfakeDataset(val_dir, transform=transform)
 
-    # train_dataset = DeepfakeDataset(root_dir="data/train", transform=transform)
-    # val_dataset = DeepfakeDataset(root_dir="data/test", transform=transform)
-
-    # Create data loaders
     train_loader = DataLoader(
         train_dataset,
         batch_size=batch_size,
         shuffle=True,
-        num_workers=0,  # Set to 0 to avoid multiprocessing issues
-        pin_memory=True if torch.cuda.is_available() else False
+        num_workers=0,
+        pin_memory=torch.cuda.is_available()
     )
 
     val_loader = DataLoader(
         val_dataset,
         batch_size=batch_size,
         shuffle=False,
-        num_workers=0,  # Set to 0 to avoid multiprocessing issues
-        pin_memory=True if torch.cuda.is_available() else False
+        num_workers=0,
+        pin_memory=torch.cuda.is_available()
     )
 
     return train_loader, val_loader
+

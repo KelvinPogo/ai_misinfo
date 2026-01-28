@@ -1,0 +1,39 @@
+import os
+import shutil
+import random
+
+# IMPORTANT : RUN THIS FILE ONLY ONCE TO SPLIT DATA INTO TRAIN AND VAL SETS
+
+DATA_DIR = "data"
+TRAIN_DIR = os.path.join(DATA_DIR, "train")
+VAL_DIR = os.path.join(DATA_DIR, "val")
+
+SPLIT_RATIO = 0.2   # 20% to validation
+SEED = 42
+
+random.seed(SEED)
+
+classes = ["real", "fake"]
+
+for cls in classes:
+    train_cls_dir = os.path.join(TRAIN_DIR, cls)
+    val_cls_dir = os.path.join(VAL_DIR, cls)
+
+    os.makedirs(val_cls_dir, exist_ok=True)
+
+    files = [
+        f for f in os.listdir(train_cls_dir)
+        if os.path.isfile(os.path.join(train_cls_dir, f))
+    ]
+
+    random.shuffle(files)
+
+    num_val = int(len(files) * SPLIT_RATIO)
+    val_files = files[:num_val]
+
+    for filename in val_files:
+        src = os.path.join(train_cls_dir, filename)
+        dst = os.path.join(val_cls_dir, filename)
+        shutil.move(src, dst)
+
+    print(f"{cls}: moved {num_val} files to validation")
