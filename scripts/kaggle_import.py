@@ -6,7 +6,7 @@ api.authenticate()
 
 # Download the Deepfake Image Detection dataset into current folder
 api.dataset_download_files(
-    'saurabhbagchi/deepfake-image-detection',
+    'tristanzhang32/ai-generated-images-vs-real-images',
     path='.',
     unzip=True
 )

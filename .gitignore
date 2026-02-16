@@ -1,3 +1,6 @@
 data/
 *.jpg
 *.png
+.venv
+data_raw/
+checkpoints/
