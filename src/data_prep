@@ -4,6 +4,9 @@ import random
 
 # IMPORTANT : RUN THIS FILE ONLY ONCE TO SPLIT DATA INTO TRAIN AND VAL SETS
 
+RAW_DIR = "data_raw"
+RAW_TRAIN_DIR = os.path.join(RAW_DIR, "train")
+
 DATA_DIR = "data"
 TRAIN_DIR = os.path.join(DATA_DIR, "train")
 VAL_DIR = os.path.join(DATA_DIR, "val")
@@ -15,25 +18,36 @@ random.seed(SEED)
 
 classes = ["real", "fake"]
 
+if os.path.exists(VAL_DIR) and any(os.scandir(VAL_DIR)):
+    raise RuntimeError("data/val already has files. Delete data/ and return if you want a fresh split.")
+
 for cls in classes:
+    raw_cls_dir = os.path.join(RAW_TRAIN_DIR, cls)
     train_cls_dir = os.path.join(TRAIN_DIR, cls)
     val_cls_dir = os.path.join(VAL_DIR, cls)
 
+    os.makedirs(train_cls_dir, exist_ok=True)
     os.makedirs(val_cls_dir, exist_ok=True)
 
     files = [
-        f for f in os.listdir(train_cls_dir)
-        if os.path.isfile(os.path.join(train_cls_dir, f))
+        f for f in os.listdir(raw_cls_dir)
+        if os.path.isfile(os.path.join(raw_cls_dir, f))
     ]
 
     random.shuffle(files)
 
     num_val = int(len(files) * SPLIT_RATIO)
     val_files = files[:num_val]
+    train_files = files[num_val:]
 
     for filename in val_files:
-        src = os.path.join(train_cls_dir, filename)
+        src = os.path.join(raw_cls_dir, filename)
         dst = os.path.join(val_cls_dir, filename)
-        shutil.move(src, dst)
+        shutil.copy(src, dst)
+    
+    for filename in train_files:
+        src = os.path.join(raw_cls_dir, filename)
+        dst = os.path.join(train_cls_dir, filename)
+        shutil.copy(src, dst)
 
     print(f"{cls}: moved {num_val} files to validation")
