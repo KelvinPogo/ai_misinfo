@@ -35,7 +35,14 @@ def load_latest_checkpoint(model, optimizer, checkpoint_dir='checkpoints'):
     print(f"Resumed from epoch {epoch} with train_loss: {checkpoint.get('train_loss', 'N/A'):.4f}")
     return epoch
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+if torch.backends.mps.is_available():
+    device = torch.device("mps")
+elif torch.cuda.is_available():
+    device = torch.device("cuda")
+else:
+    device = torch.device("cpu")
+
+print("Using device:", device)
 
 # -----------------------------
 # Hyperparameters

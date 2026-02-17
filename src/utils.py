@@ -1,8 +1,11 @@
 import torch
 from torchvision import transforms
 from torch.utils.data import DataLoader, Dataset
-from PIL import Image
+from PIL import Image, ImageFile
 import os
+
+# Avoid crashes when one file is truncated/ corrupted
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 # Image preprocessing transforms for ResNet50/MobileNetV3 (ImageNet pre-trained)
 transform = transforms.Compose([
@@ -42,16 +45,22 @@ class DeepfakeDataset(Dataset):
         return len(self.image_paths)
 
     def __getitem__(self, idx):
-        img_path = self.image_paths[idx]
-        label = self.labels[idx]
+        for _ in range(5):
+            img_path = self.image_paths[idx]
+            label = self.labels[idx]
 
-        # Load image
-        image = Image.open(img_path).convert('RGB')
+            try:
+                # Load image
+                image = Image.open(img_path).convert('RGB')
 
-        if self.transform:
-            image = self.transform(image)
+                if self.transform:
+                    image = self.transform(image)
 
-        return image, label
+                return image, label
+            
+            except Exception:
+                #move to different index and try again
+                idx = (idx + 1) % len(self.image_paths)
 
 def get_loaders(batch_size=32, data_dir='data'):
     train_dir = os.path.join(data_dir, 'train')  # ← use existing data
