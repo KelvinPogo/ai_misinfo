@@ -8,9 +8,10 @@ from sklearn.metrics import accuracy_score, f1_score, confusion_matrix
 from tqdm import tqdm
 import random
 import numpy as np
+import numpy._core.multiarray as _multiarray
 import os
 
-def load_latest_checkpoint(model, optimizer, checkpoint_dir='checkpoints'):
+def load_latest_checkpoint(model, optimizer=None, checkpoint_dir='checkpoints', device=None):
     """Load the most recent checkpoint if it exists"""
     if not os.path.exists(checkpoint_dir):
         print("No checkpoint directory found. Starting fresh training.")
@@ -26,14 +27,43 @@ def load_latest_checkpoint(model, optimizer, checkpoint_dir='checkpoints'):
     checkpoints.sort(key=lambda x: int(x.split('_')[-1].split('.')[0]))
     latest_checkpoint = os.path.join(checkpoint_dir, checkpoints[-1])
     
+    # Decide device for loading
+    if device is None:
+        device = next(model.parameters()).device
+
     print(f"Loading checkpoint: {latest_checkpoint}")
-    checkpoint = torch.load(latest_checkpoint)
-    model.load_state_dict(checkpoint['model_state_dict'])
-    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-    epoch = checkpoint['epoch']
+
+    # map_location to prevent cuda/cpu deserialize issues
+    with torch.serialization.safe_globals([_multiarray.scalar]):
+        checkpoint = torch.load(latest_checkpoint, map_location=device, weights_only=False)
+
+    # Support both checkpoint dicts and plain state_dict saves
+    if isinstance(checkpoint, dict) and 'model_state_dict' in checkpoint:
+        model.load_state_dict(checkpoint['model_state_dict'])
+
+        if optimizer is not None and 'optimizer_state_dict' in checkpoint:
+            optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+            
+            for state in optimizer.state.values():
+                for k, v in state.items():
+                    if torch.is_tensor(v):
+                        state[k] = v.to(device)
+        
+        epoch = int(checkpoint.get('epoch', latest_checkpoint))
+        train_loss = checkpoint.get('train_loss', None)
     
-    print(f"Resumed from epoch {epoch} with train_loss: {checkpoint.get('train_loss', 'N/A'):.4f}")
-    return epoch
+    else:
+        model.load_state_dict(checkpoint)
+        epoch = latest_checkpoint
+        train_loss = None
+    
+    if train_loss is None:
+        print(f'Resumed from epoch {epoch}. train_loss: N/A')
+    else:
+        print(f'Resumed from epoch {epoch}. train_loss: {float(train_loss):.4f}')
+    
+    return epoch+1
+
 
 if torch.backends.mps.is_available():
     device = torch.device("mps")
@@ -68,7 +98,7 @@ if __name__ == '__main__':
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     # Load checkpoint if exists
-    start_epoch = load_latest_checkpoint(model, optimizer)
+    start_epoch = load_latest_checkpoint(model, optimizer, device=device)
 
     # Training Loop
     for epoch in range(start_epoch, num_epochs):
@@ -124,10 +154,10 @@ if __name__ == '__main__':
             'epoch': epoch + 1,
             'model_state_dict': model.state_dict(),
             'optimizer_state_dict': optimizer.state_dict(),
-            'train_loss': np.mean(train_losses),
-            'val_loss': np.mean(val_losses) if val_losses else float('nan'),
-            'train_acc': train_acc,
-            'val_acc': val_acc if not np.isnan(val_acc) else 0.0,
+            'train_loss': float(np.mean(train_losses)),
+            'val_loss': float(np.mean(val_losses)) if val_losses else float('nan'),
+            'train_acc': float(train_acc),
+            'val_acc': float(val_acc) if not np.isnan(val_acc) else 0.0,
         }, checkpoint_path)
         print(f"Checkpoint saved: {checkpoint_path}")
 
