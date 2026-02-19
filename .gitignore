@@ -3,5 +3,6 @@ data/
 *.png
 .venv
 data_raw/
-checkpoints/
+checkpoints/*
+!checkpoints/model_final.pth
 .DS_Store
