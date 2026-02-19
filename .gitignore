@@ -4,3 +4,4 @@ data/
 .venv
 data_raw/
 checkpoints/
+.DS_Store
