@@ -1,1 +1,7 @@
 # AI_Misinfo
+
+AI_Misinfo is a project I started after noticing the huge influx of AI-generated content flooding social media feeds. It felt unsettling that I genuinely had a hard time telling the difference between reality and AI, and I realized this has the potential to create real harm. For example, how would AI content affect the development of millions of young people scrolling social media every day? Realistic videos created by AI could hugely impact a way a young person percieves the world and blurs the line between what they believe is true and false. Even seemingly harmless trends on social media may have consequences: a 2025 trend on Instagram featured a series of reels that showed AI generated gameplay of "Bird Game", a game that never existed. However, the Instagram community pretended it was a real, nostalgic game of the past. Trends like this can imprint false memories of the past in young people's minds, and if used in malicious ways, could imprint misinformation and violent ideologies into millions of individuals through their social media feeds. 
+
+Our project is aimed at building a tool to combat harmful AI generated content by detecting it in real time and blocking it from the user's feed. We used a pretrained CNN model ResNet50 and retrained the last few layers on a dataset from Kaggle containing real and AI images. Our resulting classifier was able to perform at a final F1 score of 96%. 
+
+
