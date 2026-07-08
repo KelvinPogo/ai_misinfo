@@ -4,4 +4,7 @@ AI_Misinfo is a project I started after noticing the huge influx of AI-generated
 
 Our project is aimed at building a tool to combat harmful AI generated content by detecting it in real time and blocking it from the user's feed. We used a pretrained CNN model ResNet50 and retrained the last few layers on a dataset from Kaggle containing real and AI images. Our resulting classifier was able to perform at a final F1 score of 96%. 
 
+** UPDATE JULY 2026 ** 
+I initially believed (based on the one "Bird Game" trend) that I would notice more "casual" AI content would flood social media feeds such as Instagram. By "casual" content I mean social trends that get built around AI generated content, such as large communities role-playing as though fake content were real. I believed a rise in this trend would present hidden dangers toward what people come to believe. However, I realized that as a recent trend of "AI fatigue", I have seen less and less of this kind of content or trends. Spaces such as Instagram reels are still very alive with human short term content, with AI content taking a back seat among a sea of creators. I realized that building a "blocker" for AI content (for social media feeds specifically) is an unneccesary undertaking, and I should focus more on clear scams and malicious content that primarily uses AI for harm. Overall, this project was a great learning experience for learning to build an AI tool from scratch, working with a passionate team with good development practices and learning to use external computing hardware. 
+
 
